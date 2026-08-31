@@ -169,14 +169,14 @@
       if (state.completedIds.has(id)) {
         const p = state.completed.find(c => c.id === id);
         el.classList.add('done');
-        // Green for correct, red for wrong, nothing for skipped
         el.classList.remove('correct', 'wrong', 'skipped');
         if (p && p.correct) {
           el.classList.add('correct');
-        } else if (p && !p.skipped) {
+        } else if (p && p.skipped) {
+          el.classList.add('skipped');
+        } else if (p) {
           el.classList.add('wrong');
         }
-        // Skipped = stays as done with no color
       } else {
         el.classList.remove('done', 'correct', 'wrong', 'skipped');
       }
