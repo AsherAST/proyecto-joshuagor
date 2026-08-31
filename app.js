@@ -146,8 +146,7 @@
   function renderSpriteGrid() {
     const grid = $('#sprite-grid');
     grid.innerHTML = '';
-    const isOrdered = state.mode === 'ordered';
-    const list = isOrdered ? POKEMON : shuffle(POKEMON);
+    const list = POKEMON;
 
     list.forEach(p => {
       const el = document.createElement('div');
