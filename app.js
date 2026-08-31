@@ -398,6 +398,15 @@
   // ===== FINISH =====
   function finishQuiz() {
     if (state.timerInterval) clearInterval(state.timerInterval);
+    // Mark all skipped as red in sprite grid
+    state.completed.forEach(p => {
+      if (p.skipped) {
+        const el = document.querySelector(`.sprite-grid-item[data-id="${p.id}"]`);
+        if (el) {
+          el.classList.add('done', 'wrong');
+        }
+      }
+    });
     const wrongPokemon = state.completed.filter(p => !p.correct && !p.skipped);
     if (wrongPokemon.length > 0) {
       startReview(wrongPokemon);

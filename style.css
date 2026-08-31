@@ -303,16 +303,17 @@ h1 {
   transition: all 0.3s;
 }
 .sprite-grid-item.done {
-  opacity: 0.3;
+  opacity: 0.35;
 }
 .sprite-grid-item.done.correct {
-  opacity: 0.2;
-  border-color: rgba(34,197,94,0.3);
+  opacity: 1;
+  border-color: rgba(34,197,94,0.6);
+  background: rgba(34,197,94,0.15);
 }
 .sprite-grid-item.done.wrong {
-  opacity: 0.35;
-  border-color: rgba(239,68,68,0.4);
-  background: rgba(239,68,68,0.05);
+  opacity: 1;
+  border-color: rgba(239,68,68,0.6);
+  background: rgba(239,68,68,0.15);
 }
 
 .sprite-grid-img {
@@ -396,15 +397,16 @@ h1 {
   transition: all 0.3s;
 }
 .list-pokemon-item.found {
-  background: rgba(34,197,94,0.1);
-  border-color: rgba(34,197,94,0.4);
+  background: rgba(34,197,94,0.15);
+  border-color: rgba(34,197,94,0.5);
 }
 .list-pokemon-item.found .list-pokemon-name {
   color: var(--green);
+  font-weight: 600;
 }
 .list-pokemon-item.wrong-reveal {
-  background: rgba(239,68,68,0.1);
-  border-color: rgba(239,68,68,0.4);
+  background: rgba(239,68,68,0.15);
+  border-color: rgba(239,68,68,0.5);
 }
 
 .list-pokemon-sprite-placeholder {
