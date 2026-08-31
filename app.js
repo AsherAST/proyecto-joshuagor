@@ -274,7 +274,7 @@
   // ===== PROGRESS / STATS =====
   function updateProgress() {
     const total = POKEMON.length;
-    const done = state.completed.length;
+    const done = state.completedIds.size;
     $('#progress-fill').style.width = `${(done/total)*100}%`;
     $('#quiz-counter').textContent = `${done} / ${total}`;
   }
