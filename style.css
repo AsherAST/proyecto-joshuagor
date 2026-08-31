@@ -299,21 +299,22 @@ h1 {
   display: flex; flex-direction: column; align-items: center;
   padding: 6px 2px; border-radius: 6px;
   background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.04);
+  border: 2px solid transparent;
   transition: all 0.3s;
 }
 .sprite-grid-item.done {
-  opacity: 0.35;
+  opacity: 0.3;
+  border-color: rgba(255,255,255,0.1);
 }
 .sprite-grid-item.done.correct {
   opacity: 1;
-  border-color: rgba(34,197,94,0.6);
-  background: rgba(34,197,94,0.15);
+  border-color: #22c55e;
+  background: rgba(34,197,94,0.25);
 }
 .sprite-grid-item.done.wrong {
   opacity: 1;
-  border-color: rgba(239,68,68,0.6);
-  background: rgba(239,68,68,0.15);
+  border-color: #ef4444;
+  background: rgba(239,68,68,0.25);
 }
 
 .sprite-grid-img {
@@ -397,16 +398,16 @@ h1 {
   transition: all 0.3s;
 }
 .list-pokemon-item.found {
-  background: rgba(34,197,94,0.15);
-  border-color: rgba(34,197,94,0.5);
+  background: rgba(34,197,94,0.2);
+  border-color: #22c55e;
 }
 .list-pokemon-item.found .list-pokemon-name {
-  color: var(--green);
-  font-weight: 600;
+  color: #22c55e;
+  font-weight: 700;
 }
 .list-pokemon-item.wrong-reveal {
-  background: rgba(239,68,68,0.15);
-  border-color: rgba(239,68,68,0.5);
+  background: rgba(239,68,68,0.2);
+  border-color: #ef4444;
 }
 
 .list-pokemon-sprite-placeholder {
@@ -486,6 +487,19 @@ h1 {
   border: 1px solid rgba(239,68,68,0.25);
 }
 .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+.btn-giveup {
+  margin-top: 16px;
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 1rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: var(--rs);
+  font-weight: 700;
+}
+.btn-giveup:hover { background: #dc2626; }
 
 .btn-large { padding: 16px 48px; font-size: 1.15rem; border-radius: 12px; }
 
