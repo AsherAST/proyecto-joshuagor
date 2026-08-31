@@ -167,7 +167,9 @@
     document.querySelectorAll('.sprite-grid-item').forEach(el => {
       const id = parseInt(el.dataset.id);
       if (state.completedIds.has(id)) {
-        const p = state.completed.find(c => c.id === id);
+        // Use last entry for this pokemon (in case it was skipped then answered)
+        const entries = state.completed.filter(c => c.id === id);
+        const p = entries[entries.length - 1];
         el.classList.add('done');
         el.classList.remove('correct', 'wrong', 'skipped');
         if (p && p.correct) {
