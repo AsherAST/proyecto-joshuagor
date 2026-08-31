@@ -316,6 +316,11 @@ h1 {
   border-color: #ef4444;
   background: rgba(239,68,68,0.25);
 }
+.sprite-grid-item.done.skipped {
+  opacity: 1;
+  border-color: #eab308;
+  background: rgba(234,179,8,0.25);
+}
 
 .sprite-grid-img {
   width: 48px; height: 48px;
