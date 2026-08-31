@@ -95,6 +95,7 @@
       showScreen('quiz');
       $('#screen-quiz-single').classList.add('hidden');
       $('#screen-quiz-list').classList.remove('hidden');
+      $('.quiz-progress').classList.add('hidden');
       renderListMode();
     } else {
       if (state.mode === 'ordered') {
@@ -105,6 +106,7 @@
       showScreen('quiz');
       $('#screen-quiz-single').classList.remove('hidden');
       $('#screen-quiz-list').classList.add('hidden');
+      $('.quiz-progress').classList.remove('hidden');
       renderSpriteGrid();
       showNextPokemon();
     }
