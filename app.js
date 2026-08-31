@@ -369,6 +369,10 @@
 
   function finishListQuiz() {
     if (state.timerInterval) clearInterval(state.timerInterval);
+    state.completed = [];
+    POKEMON.forEach(p => {
+      state.completed.push({ ...p, correct: listState.found.has(p.id) });
+    });
     state.correctCount = listState.found.size;
     state.wrongCount = POKEMON.length - listState.found.size;
     showResults();
@@ -376,9 +380,13 @@
 
   function giveUpListQuiz() {
     if (state.timerInterval) clearInterval(state.timerInterval);
-    // Reveal all unguessed pokemon
+    // Populate state.completed for results
+    state.completed = [];
     POKEMON.forEach(p => {
-      if (!listState.found.has(p.id)) {
+      if (listState.found.has(p.id)) {
+        state.completed.push({ ...p, correct: true });
+      } else {
+        state.completed.push({ ...p, correct: false });
         const el = document.querySelector(`.list-pokemon-item[data-id="${p.id}"]`);
         if (el) {
           el.classList.add('wrong-reveal');
