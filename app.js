@@ -54,7 +54,7 @@
         state.mode = btn.dataset.mode;
       });
     });
-    document.querySelector('[data-mode="random"]').classList.add('selected');
+    document.querySelector('[data-mode="ordered"]').classList.add('selected');
   }
 
   function shuffle(arr) {
@@ -374,6 +374,27 @@
     showResults();
   }
 
+  function giveUpListQuiz() {
+    if (state.timerInterval) clearInterval(state.timerInterval);
+    // Reveal all unguessed pokemon
+    POKEMON.forEach(p => {
+      if (!listState.found.has(p.id)) {
+        const el = document.querySelector(`.list-pokemon-item[data-id="${p.id}"]`);
+        if (el) {
+          el.classList.add('wrong-reveal');
+          el.querySelector('.list-pokemon-name').textContent = p.name;
+          el.querySelector('.list-pokemon-name').style.color = 'var(--wrong)';
+          el.querySelector('.list-pokemon-sprite-placeholder').classList.add('hidden');
+          el.querySelector('.list-pokemon-img').classList.remove('hidden');
+        }
+      }
+    });
+    $('#list-input').disabled = true;
+    state.correctCount = listState.found.size;
+    state.wrongCount = POKEMON.length - listState.found.size;
+    showResults();
+  }
+
   // ===== FINISH =====
   function finishQuiz() {
     if (state.timerInterval) clearInterval(state.timerInterval);
@@ -638,6 +659,7 @@
         onListInput();
       }
     });
+    $('#btn-list-giveup').addEventListener('click', giveUpListQuiz);
 
     // Review back button
     $('#btn-back-review').addEventListener('click', () => {

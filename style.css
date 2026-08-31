@@ -402,6 +402,10 @@ h1 {
 .list-pokemon-item.found .list-pokemon-name {
   color: var(--green);
 }
+.list-pokemon-item.wrong-reveal {
+  background: rgba(239,68,68,0.1);
+  border-color: rgba(239,68,68,0.4);
+}
 
 .list-pokemon-sprite-placeholder {
   width: 40px; height: 40px;
