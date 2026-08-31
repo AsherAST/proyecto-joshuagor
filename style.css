@@ -544,6 +544,24 @@ h1 {
 
 .results-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 
+/* ===== REVIEW QUIZ ===== */
+.review-hint {
+  font-family: 'Courier New', monospace;
+  font-size: 1.3rem;
+  letter-spacing: 3px;
+  color: var(--yellow);
+  text-transform: capitalize;
+  padding: 12px 20px;
+  background: rgba(255,222,0,0.08);
+  border: 1px solid rgba(255,222,0,0.25);
+  border-radius: var(--rs);
+  text-align: center;
+  width: 100%;
+  animation: fadeIn 0.3s;
+}
+
+#review-input { text-transform: capitalize; }
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -560,4 +578,41 @@ h1 {
   .list-pokemon-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
   .mode-buttons { grid-template-columns: 1fr; max-width: 280px; }
   h1 { font-size: 2.2rem; }
+  .quiz-header { padding: 10px 12px; gap: 8px; }
+  .quiz-timer { font-size: 1.1rem; min-width: 55px; }
+  .pokemon-card { padding: 24px 16px; }
+  .sprite-container { width: 140px; height: 140px; }
+  #pokemon-sprite { width: 110px; height: 110px; }
+  .quiz-footer { padding: 8px 12px; }
+  .quiz-stats { gap: 12px; }
+  .stat { font-size: 0.78rem; }
+  .sprite-grid-img { width: 38px; height: 38px; }
+  .sprite-grid { gap: 3px; padding: 6px; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); }
+  .results-content { padding: 30px 16px; }
+  .results-stats { min-width: auto; padding: 20px 16px; width: 100%; }
+  .wrong-list { grid-template-columns: 1fr; }
+  .action-buttons { flex-direction: column; }
+  .action-buttons .btn { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.8rem; }
+  .subtitle { font-size: 0.9rem; }
+  .start-content { padding: 30px 12px; }
+  .mode-btn { padding: 18px 10px; }
+  .mode-icon { font-size: 1.6rem; }
+  .mode-name { font-size: 0.95rem; }
+  .quiz-left { padding: 0 4px; }
+  .pokemon-card { padding: 18px 12px; gap: 10px; }
+  .pokemon-number { font-size: 1.6rem; }
+  .sprite-container { width: 120px; height: 120px; border-width: 2px; }
+  #pokemon-sprite { width: 96px; height: 96px; }
+  .input-answer { padding: 12px 14px; font-size: 1rem; }
+  .list-pokemon-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+  .list-pokemon-item { padding: 6px 8px; gap: 4px; }
+  .list-pokemon-img { width: 32px; height: 32px; }
+  .list-pokemon-sprite-placeholder { width: 32px; height: 32px; }
+  .list-pokemon-name { font-size: 0.75rem; }
+  .quiz-stats { gap: 8px; }
+  .review-hint { font-size: 1.1rem; letter-spacing: 2px; }
 }

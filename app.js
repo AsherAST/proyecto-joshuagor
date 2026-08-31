@@ -17,6 +17,17 @@
     answered: false
   };
 
+  let reviewState = {
+    queue: [],
+    currentPokemon: null,
+    hintsUsed: 0,
+    correctCount: 0,
+    startTime: null,
+    timerInterval: null
+  };
+
+  let listState = { found: new Set(), correctNames: {} };
+
   const screens = {
     start: $('#screen-start'),
     quiz: $('#screen-quiz'),
@@ -57,6 +68,21 @@
 
   function normalize(s) {
     return s.replace(/[^a-z0-9]/g, '').toLowerCase();
+  }
+
+  // Check name match, including nidoran male/female
+  function nameMatches(userAnswer, pokemon) {
+    const norm = normalize(userAnswer);
+    const pokemonName = pokemon.name.toLowerCase();
+    const baseName = normalize(pokemonName);
+
+    if (norm === baseName) return true;
+
+    // Nidoran matching: nidoran matches nidoran and nidoran♂ and nidoran♀
+    if (baseName === 'nidoran' && (norm === 'nidoran' || norm === 'nidoranm' || norm === 'nidoranf' || norm === 'nidoran' || norm === 'nidoranm' || norm === 'nidoranf')) return true;
+    if (norm === 'nidoran' && (baseName === 'nidoran' || baseName.includes('nidoran'))) return true;
+
+    return false;
   }
 
   // ===== START QUIZ =====
@@ -116,7 +142,7 @@
     return `${String(Math.floor(e/60)).padStart(2,'0')}:${String(e%60).padStart(2,'0')}`;
   }
 
-  // ===== SPRITE GRID (right panel) =====
+  // ===== SPRITE GRID =====
   function renderSpriteGrid() {
     const grid = $('#sprite-grid');
     grid.innerHTML = '';
@@ -144,10 +170,16 @@
       if (state.completedIds.has(id)) {
         const p = state.completed.find(c => c.id === id);
         el.classList.add('done');
-        el.classList.toggle('correct', p && p.correct);
-        el.classList.toggle('wrong', p && !p.correct);
+        // Green for correct, red for wrong, nothing for skipped
+        el.classList.remove('correct', 'wrong', 'skipped');
+        if (p && p.correct) {
+          el.classList.add('correct');
+        } else if (p && !p.skipped) {
+          el.classList.add('wrong');
+        }
+        // Skipped = stays as done with no color
       } else {
-        el.classList.remove('done', 'correct', 'wrong');
+        el.classList.remove('done', 'correct', 'wrong', 'skipped');
       }
     });
     updateSpriteGridCount();
@@ -194,7 +226,7 @@
     const userAnswer = input.value.trim().toLowerCase();
     if (!userAnswer) return;
 
-    if (normalize(userAnswer) === normalize(state.currentPokemon.name)) {
+    if (nameMatches(userAnswer, state.currentPokemon)) {
       state.answered = true;
       input.disabled = true;
       input.classList.add('correct');
@@ -254,8 +286,6 @@
   }
 
   // ===== LIST MODE =====
-  let listState = { found: new Set(), correctNames: {} };
-
   function renderListMode() {
     listState = { found: new Set(), correctNames: {} };
     const grid = $('#list-pokemon-grid');
@@ -289,12 +319,11 @@
     const val = input.value.trim().toLowerCase();
     if (!val) return;
 
-    // Check against all not-yet-found pokemon
     let found = false;
     let foundPokemon = null;
 
     for (const p of POKEMON) {
-      if (!listState.found.has(p.id) && normalize(val) === normalize(p.name)) {
+      if (!listState.found.has(p.id) && nameMatches(val, p)) {
         listState.found.add(p.id);
         foundPokemon = p;
         found = true;
@@ -303,7 +332,6 @@
     }
 
     if (found) {
-      // Mark in grid
       const el = document.querySelector(`.list-pokemon-item[data-id="${foundPokemon.id}"]`);
       if (el) {
         el.classList.add('found');
@@ -315,7 +343,6 @@
       state.correctCount++;
       updateListStats();
 
-      // Check if all found
       if (listState.found.size === POKEMON.length) {
         input.disabled = true;
         showListFeedback(true, '¡Completaste todos!');
@@ -327,7 +354,6 @@
   function updateListStats() {
     $('#list-correct').textContent = listState.found.size;
     $('#list-remaining').textContent = POKEMON.length - listState.found.size;
-    // Update main footer stats too
     $('#stat-correct').textContent = listState.found.size;
     $('#stat-wrong').textContent = 0;
     $('#stat-pending').textContent = POKEMON.length - listState.found.size;
@@ -344,16 +370,171 @@
   function finishListQuiz() {
     if (state.timerInterval) clearInterval(state.timerInterval);
     state.correctCount = listState.found.size;
-    state.wrongCount = 0;
+    state.wrongCount = POKEMON.length - listState.found.size;
     showResults();
   }
 
   // ===== FINISH =====
   function finishQuiz() {
     if (state.timerInterval) clearInterval(state.timerInterval);
+    const wrongPokemon = state.completed.filter(p => !p.correct && !p.skipped);
+    if (wrongPokemon.length > 0) {
+      startReview(wrongPokemon);
+    } else {
+      showResults();
+    }
+  }
+
+  // ===== REVIEW QUIZ =====
+  function startReview(wrongPokemon) {
+    reviewState = {
+      queue: shuffle([...wrongPokemon]),
+      currentPokemon: null,
+      hintsUsed: 0,
+      correctCount: 0,
+      startTime: Date.now(),
+      timerInterval: null
+    };
+
+    // Hide quiz screens, show review
+    $('#screen-quiz-single').classList.add('hidden');
+    $('#screen-quiz-list').classList.add('hidden');
+
+    const reviewScreen = $('#screen-review');
+    reviewScreen.classList.remove('hidden');
+    reviewScreen.classList.add('active');
+
+    // Update review stats
+    updateReviewStats();
+    showNextReviewPokemon();
+  }
+
+  function showNextReviewPokemon() {
+    if (reviewState.queue.length === 0) {
+      finishReview();
+      return;
+    }
+
+    reviewState.currentPokemon = reviewState.queue.shift();
+    reviewState.hintsUsed = 0;
+
+    const container = $('#review-card');
+    container.innerHTML = `
+      <div class="pokemon-number">#${reviewState.currentPokemon.id}</div>
+      <div class="sprite-container">
+        <img src="${reviewState.currentPokemon.sprite}" alt="${reviewState.currentPokemon.id}" id="review-sprite">
+      </div>
+      <input type="text" id="review-input" class="input-answer" placeholder="Escribe el nombre..." autocomplete="off" autofocus>
+      <div id="review-feedback" class="feedback hidden">
+        <span id="review-feedback-text"></span>
+      </div>
+      <div id="review-hint" class="review-hint hidden"></div>
+      <div class="action-buttons">
+        <button id="btn-review-hint" class="btn btn-skip">💡 Pista (${3 - reviewState.hintsUsed})</button>
+        <button id="btn-review-skip" class="btn btn-skip">Skip →</button>
+        <button id="btn-review-dont-know" class="btn btn-danger">No sé</button>
+      </div>
+    `;
+
+    // Setup review input
+    const input = $('#review-input');
+    input.addEventListener('input', onReviewInput);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        onReviewInput();
+      }
+    });
+
+    // Setup review buttons
+    $('#btn-review-hint').addEventListener('click', showReviewHint);
+    $('#btn-review-skip').addEventListener('click', skipReviewPokemon);
+    $('#btn-review-dont-know').addEventListener('click', dontKnowReviewPokemon);
+
+    input.focus();
+    updateReviewStats();
+  }
+
+  function onReviewInput() {
+    const input = $('#review-input');
+    const val = input.value.trim().toLowerCase();
+    if (!val || !reviewState.currentPokemon) return;
+
+    if (nameMatches(val, reviewState.currentPokemon)) {
+      input.disabled = true;
+      input.classList.add('correct');
+      reviewState.correctCount++;
+
+      const feedback = $('#review-feedback');
+      feedback.className = 'feedback correct';
+      $('#review-feedback-text').textContent = `¡Correcto! ${reviewState.currentPokemon.name}`;
+      feedback.classList.remove('hidden');
+
+      setTimeout(() => showNextReviewPokemon(), 600);
+    }
+  }
+
+  function showReviewHint() {
+    if (!reviewState.currentPokemon || reviewState.hintsUsed >= 3) return;
+
+    const name = reviewState.currentPokemon.name.toLowerCase();
+    reviewState.hintsUsed++;
+
+    let hintText = '';
+    for (let i = 0; i < reviewState.hintsUsed; i++) {
+      hintText += name[i] || ' ';
+    }
+
+    const hintEl = $('#review-hint');
+    hintEl.className = 'review-hint';
+    hintEl.textContent = `Pista: ${hintText}`;
+
+    // Update hint button
+    const btn = $('#btn-review-hint');
+    btn.textContent = `💡 Pista (${3 - reviewState.hintsUsed})`;
+    if (reviewState.hintsUsed >= 3) {
+      btn.disabled = true;
+    }
+
+    // Focus back on input
+    $('#review-input').focus();
+  }
+
+  function skipReviewPokemon() {
+    if (!reviewState.currentPokemon) return;
+    reviewState.queue.push(reviewState.currentPokemon);
+    showNextReviewPokemon();
+  }
+
+  function dontKnowReviewPokemon() {
+    if (!reviewState.currentPokemon) return;
+    const input = $('#review-input');
+    input.value = reviewState.currentPokemon.name;
+    input.disabled = true;
+    input.classList.add('wrong');
+
+    const feedback = $('#review-feedback');
+    feedback.className = 'feedback wrong';
+    $('#review-feedback-text').textContent = `Era: ${reviewState.currentPokemon.name}`;
+    feedback.classList.remove('hidden');
+
+    setTimeout(() => showNextReviewPokemon(), 1200);
+  }
+
+  function updateReviewStats() {
+    const total = reviewState.correctCount + reviewState.queue.length + (reviewState.currentPokemon ? 1 : 0);
+    const remaining = reviewState.queue.length + (reviewState.currentPokemon ? 1 : 0);
+    $('#review-title').textContent = `Repaso - Quedan ${remaining}`;
+  }
+
+  function finishReview() {
+    const reviewScreen = $('#screen-review');
+    reviewScreen.classList.add('hidden');
+    reviewScreen.classList.remove('active');
     showResults();
   }
 
+  // ===== RESULTS =====
   function showResults() {
     const time = getElapsed();
     const total = POKEMON.length;
@@ -424,7 +605,10 @@
     $('#btn-start').addEventListener('click', startQuiz);
     $('#btn-back').addEventListener('click', () => {
       if (state.timerInterval) clearInterval(state.timerInterval);
+      if (reviewState.timerInterval) clearInterval(reviewState.timerInterval);
       showScreen('start');
+      $('#screen-review').classList.add('hidden');
+      $('#screen-review').classList.remove('active');
     });
 
     document.addEventListener('keydown', (e) => {
@@ -455,9 +639,19 @@
       }
     });
 
+    // Review back button
+    $('#btn-back-review').addEventListener('click', () => {
+      $('#screen-review').classList.add('hidden');
+      $('#screen-review').classList.remove('active');
+      showScreen('start');
+    });
+
     // Results
     $('#btn-retry').addEventListener('click', startQuiz);
-    $('#btn-home').addEventListener('click', () => showScreen('start'));
+    $('#btn-home').addEventListener('click', () => {
+      showScreen('start');
+      $('#screen-review').classList.add('hidden');
+    });
     $('#btn-view-wrong').addEventListener('click', () => {
       $('#wrong-list-section').classList.toggle('hidden');
     });
