@@ -1,0 +1,9 @@
+{
+  "name": "proyecto-joshuagor",
+  "version": "1.0.0",
+  "description": "Proyecto Joshuagor - Joshua se convertira en el proximo poketuber?",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Static site, no build needed'"
+  }
+}

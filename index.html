@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyecto Joshuagor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- INICIO -->
+    <div id="screen-start" class="screen active">
+      <div class="pokeball-bg"></div>
+      <div class="start-content">
+        <div class="logo-container">
+          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu" class="logo-pokemon">
+        </div>
+        <h1>Proyecto Joshuagor</h1>
+        <p class="subtitle">Joshua se convertirá en el proximo poketuber? lo averiguaremos.</p>
+        <div class="mode-selector">
+          <h2>Selecciona un modo</h2>
+          <div class="mode-buttons">
+            <button class="mode-btn" data-mode="ordered">
+              <span class="mode-icon">📋</span>
+              <span class="mode-name">Ordenado</span>
+              <span class="mode-desc">En secuencia 1, 2, 3...</span>
+            </button>
+            <button class="mode-btn" data-mode="random">
+              <span class="mode-icon">🎲</span>
+              <span class="mode-name">Random</span>
+              <span class="mode-desc">Sprites en orden aleatorio</span>
+            </button>
+            <button class="mode-btn" data-mode="list">
+              <span class="mode-icon">📝</span>
+              <span class="mode-name">Lista / Memoria</span>
+              <span class="mode-desc">Escribe y chulea los que sepas</span>
+            </button>
+          </div>
+          <button id="btn-start" class="btn btn-primary btn-large btn-start">Empezar</button>
+        </div>
+        <div id="history-section" class="history-section hidden">
+          <h2>Historial reciente</h2>
+          <div id="history-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="screen-quiz" class="screen">
+      <div class="quiz-header">
+        <button id="btn-back" class="btn-icon" title="Volver">←</button>
+        <div class="quiz-progress">
+          <span id="quiz-counter">0 / 0</span>
+          <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+        </div>
+        <div class="quiz-timer">
+          <span id="timer">00:00</span>
+        </div>
+      </div>
+
+      <!-- Modos ordered / random -->
+      <div id="screen-quiz-single" class="quiz-body">
+        <div class="quiz-layout">
+          <div class="quiz-left">
+            <div class="pokemon-card">
+              <div id="pokemon-number" class="pokemon-number">#1</div>
+              <div id="sprite-container" class="sprite-container">
+                <img id="pokemon-sprite" src="" alt="Pokemon">
+              </div>
+              <div class="input-area">
+                <input type="text" id="input-answer" class="input-answer" placeholder="Escribe el nombre..." autocomplete="off" autofocus>
+                <div id="feedback" class="feedback hidden">
+                  <span id="feedback-text"></span>
+                </div>
+                <div class="action-buttons">
+                  <button id="btn-skip" class="btn btn-skip">Skip →</button>
+                  <button id="btn-dont-know" class="btn btn-danger">No sé</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="quiz-right">
+            <div class="sprite-grid-header">
+              <span id="sprite-grid-title">Pokédex</span>
+              <span id="sprite-grid-count" class="sprite-grid-count"></span>
+            </div>
+            <div id="sprite-grid" class="sprite-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modo lista -->
+      <div id="screen-quiz-list" class="quiz-body hidden">
+        <div class="list-mode-layout">
+          <div class="list-input-area">
+            <div class="list-input-card">
+              <h2>Escribe el nombre de un Pokémon</h2>
+              <p class="list-hint">Escribe un nombre y si es correcto se chulea</p>
+              <input type="text" id="list-input" class="list-input" placeholder="Escribe un pokemon..." autocomplete="off" autofocus>
+              <div id="list-feedback" class="feedback hidden">
+                <span id="list-feedback-text"></span>
+              </div>
+              <div class="list-stats-bar">
+                <span class="list-stat"><span class="list-stat-icon">✅</span> <span id="list-correct">0</span></span>
+                <span class="list-stat"><span class="list-stat-icon">📋</span> <span id="list-remaining">0</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="list-grid-area">
+            <div id="list-pokemon-grid" class="list-pokemon-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-footer">
+        <div class="quiz-stats">
+          <div class="stat">
+            <span class="stat-icon">✅</span>
+            <span class="stat-label">Aciertos:</span>
+            <span id="stat-correct">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">❌</span>
+            <span class="stat-label">Fallos:</span>
+            <span id="stat-wrong">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">⏳</span>
+            <span class="stat-label">Pendientes:</span>
+            <span id="stat-pending">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">⏭️</span>
+            <span class="stat-label">Saltados:</span>
+            <span id="stat-skipped">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTADOS -->
+    <div id="screen-results" class="screen">
+      <div class="results-content">
+        <h1>¡Completado!</h1>
+        <div class="results-pokeball">
+          <div class="pokeball-top"></div>
+          <div class="pokeball-center"></div>
+          <div class="pokeball-bottom"></div>
+        </div>
+        <div class="results-stats">
+          <div class="result-row">
+            <span class="result-label">✅ Aciertos:</span>
+            <span id="result-correct" class="result-value">0/0</span>
+            <span id="result-percent" class="result-percent">(0%)</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">❌ Fallos:</span>
+            <span id="result-wrong" class="result-value">0</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">⏱ Tiempo:</span>
+            <span id="result-time" class="result-value">00:00</span>
+          </div>
+        </div>
+        <div id="wrong-list-section" class="wrong-list-section hidden">
+          <h2>Pokémon que fallaste</h2>
+          <div id="wrong-list" class="wrong-list"></div>
+        </div>
+        <div class="results-actions">
+          <button id="btn-retry" class="btn btn-primary">Reintentar</button>
+          <button id="btn-view-wrong" class="btn btn-secondary">Ver fallos</button>
+          <button id="btn-home" class="btn btn-secondary">Inicio</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="pokemon-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
