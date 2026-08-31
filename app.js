@@ -24,7 +24,6 @@
   };
 
   function init() {
-    $('#total-pokemon').textContent = POKEMON.length;
     setupModeButtons();
     setupEventListeners();
     loadHistory();
