@@ -301,7 +301,6 @@
       const el = document.createElement('div');
       el.className = 'list-pokemon-item';
       el.dataset.id = p.id;
-      el.dataset.name = p.name;
       el.innerHTML = `
         <div class="list-pokemon-sprite-placeholder">?</div>
         <img src="${p.sprite}" alt="${p.id}" class="list-pokemon-img hidden">
