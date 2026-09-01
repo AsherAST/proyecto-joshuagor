@@ -589,9 +589,9 @@
     const wrongList = $('#wrong-list');
     const wrongPokemon = state.completed.filter(p => !p.correct && !p.skipped);
 
-    // Show review button if there are wrong pokemon
+    // Show review button if there are wrong pokemon (not in list mode)
     const btnReview = $('#btn-review');
-    if (wrongPokemon.length > 0) {
+    if (wrongPokemon.length > 0 && state.mode !== 'list') {
       btnReview.classList.remove('hidden');
     } else {
       btnReview.classList.add('hidden');
