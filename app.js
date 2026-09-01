@@ -26,6 +26,8 @@
     timerInterval: null
   };
 
+  let wrongForReview = [];
+
   let listState = { found: new Set(), correctNames: {} };
 
   const screens = {
@@ -418,16 +420,13 @@
         }
       }
     });
-    const wrongPokemon = state.completed.filter(p => !p.correct && !p.skipped);
-    if (wrongPokemon.length > 0) {
-      startReview(wrongPokemon);
-    } else {
-      showResults();
-    }
+    wrongForReview = state.completed.filter(p => !p.correct && !p.skipped);
+    showResults();
   }
 
   // ===== REVIEW QUIZ =====
   function startReview(wrongPokemon) {
+    wrongForReview = [];
     reviewState = {
       queue: shuffle([...wrongPokemon]),
       currentPokemon: null,
@@ -591,6 +590,14 @@
     const wrongList = $('#wrong-list');
     const wrongPokemon = state.completed.filter(p => !p.correct && !p.skipped);
 
+    // Show review button if there are wrong pokemon
+    const btnReview = $('#btn-review');
+    if (wrongPokemon.length > 0) {
+      btnReview.classList.remove('hidden');
+    } else {
+      btnReview.classList.add('hidden');
+    }
+
     if (wrongPokemon.length > 0) {
       wrongList.innerHTML = wrongPokemon.map(p => `
         <div class="wrong-item">
@@ -690,6 +697,11 @@
 
     // Results
     $('#btn-retry').addEventListener('click', startQuiz);
+    $('#btn-review').addEventListener('click', () => {
+      if (wrongForReview.length > 0) {
+        startReview(wrongForReview);
+      }
+    });
     $('#btn-home').addEventListener('click', () => {
       showScreen('start');
       $('#screen-review').classList.add('hidden');
