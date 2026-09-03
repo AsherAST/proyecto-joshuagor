@@ -40,6 +40,18 @@
     setupModeButtons();
     setupEventListeners();
     loadHistory();
+    // Nombre de jugador persistente
+    const saved = localStorage.getItem('pokemon-quiz-player') || '';
+    const pi = $('#input-player');
+    if (pi) {
+      pi.value = saved;
+      pi.addEventListener('input', () => {
+        localStorage.setItem('pokemon-quiz-player', pi.value.trim().slice(0, 20));
+      });
+    }
+    const btnRefresh = $('#btn-refresh-global');
+    if (btnRefresh) btnRefresh.addEventListener('click', (e) => { e.preventDefault(); loadGlobalRanking(); });
+    loadGlobalRanking();
   }
 
   function showScreen(name) {
@@ -616,7 +628,63 @@
     showScreen('results');
   }
 
-  // ===== HISTORY =====
+  // ===== HISTORY (local + global KV) =====
+  function getPlayerName() {
+    const pi = $('#input-player');
+    const v = (pi ? pi.value : localStorage.getItem('pokemon-quiz-player') || '').trim().slice(0, 20);
+    return v || 'Anonimo';
+  }
+
+  async function sendAttempt(correct, wrong) {
+    const total = POKEMON.length;
+    const percent = Math.round((correct / total) * 100);
+    try {
+      await fetch('/api/attempt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: getPlayerName(),
+          mode: state.mode,
+          correct, wrong, total, percent,
+          time: getElapsed()
+        })
+      });
+    } catch (e) {
+      console.warn('No se pudo guardar en ranking global', e);
+    }
+    loadGlobalRanking();
+  }
+
+  async function loadGlobalRanking() {
+    const list = $('#global-list');
+    const resultsList = $('#global-results-list');
+    if (list) list.innerHTML = '<div class="history-row">Cargando ranking...</div>';
+    try {
+      const r = await fetch('/api/scores?limit=50');
+      const data = await r.json();
+      const html = !data.attempts || data.attempts.length === 0
+        ? '<div class="history-row">Sin intentos todavia. Se el primero!</div>'
+        : data.attempts.slice(0, 20).map(a => {
+            const d = a.date ? new Date(a.date).toLocaleDateString('es-ES') : '';
+            return `<div class="history-row global-row">` +
+              `<span class="global-name">${escapeHtml(a.name)} <span class="global-mode">${escapeHtml(a.mode)} ${d}</span></span>` +
+              `<span class="global-score">${a.correct}/${a.total} (${a.percent}%)</span>` +
+              `<span class="global-time">${escapeHtml(a.time)}</span>` +
+              `</div>`;
+          }).join('');
+      if (list) list.innerHTML = html;
+      if (resultsList) resultsList.innerHTML = html;
+    } catch (e) {
+      const msg = '<div class="history-row">Ranking no disponible (KV sin configurar o sin conexion).</div>';
+      if (list) list.innerHTML = msg;
+      if (resultsList) resultsList.innerHTML = msg;
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
   function saveRecord(correct, wrong) {
     const h = JSON.parse(localStorage.getItem('pokemon-quiz-history') || '[]');
     h.unshift({
@@ -629,6 +697,7 @@
     if (h.length > 10) h.length = 10;
     localStorage.setItem('pokemon-quiz-history', JSON.stringify(h));
     loadHistory();
+    sendAttempt(correct, wrong);
   }
 
   function loadHistory() {
@@ -659,7 +728,7 @@
     });
 
     document.addEventListener('keydown', (e) => {
-      if (screens.start.classList.contains('active') && e.key === 'Enter') startQuiz();
+      if (screens.start.classList.contains('active') && e.key === 'Enter' && document.activeElement !== $('#input-player')) startQuiz();
     });
 
     // Single mode input

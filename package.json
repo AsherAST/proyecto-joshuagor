@@ -2,6 +2,10 @@
   "name": "proyecto-joshuagor",
   "version": "1.0.0",
   "description": "Proyecto Joshuagor - Joshua se convertira en el proximo poketuber?",
+  "dependencies": {
+    "@upstash/redis": "^1.38.3",
+    "@vercel/kv": "^2.0.0"
+  },
   "scripts": {
     "dev": "npx serve .",
     "build": "echo 'Static site, no build needed'"

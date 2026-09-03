@@ -17,6 +17,11 @@
         </div>
         <h1>Proyecto Joshuagor</h1>
         <p class="subtitle">Joshua se convertirá en el proximo poketuber? lo averiguaremos.</p>
+        <div class="player-card">
+          <label for="input-player">Tu nombre de jugador</label>
+          <input type="text" id="input-player" class="input-answer player-input" placeholder="Ej: Joshuagor" maxlength="20" autocomplete="off">
+          <p class="player-hint">Se guarda en este navegador y se publica en el ranking global.</p>
+        </div>
         <div class="mode-selector">
           <h2>Selecciona un modo</h2>
           <div class="mode-buttons">
@@ -39,8 +44,12 @@
           <button id="btn-start" class="btn btn-primary btn-large btn-start">Empezar</button>
         </div>
         <div id="history-section" class="history-section hidden">
-          <h2>Historial reciente</h2>
+          <h2>Historial reciente (solo este navegador)</h2>
           <div id="history-list"></div>
+        </div>
+        <div id="global-section" class="history-section global-section">
+          <h2>🌍 Intentos de todos los jugadores <button id="btn-refresh-global" class="btn-icon" title="Recargar">↻</button></h2>
+          <div id="global-list"><div class="history-row">Cargando ranking...</div></div>
         </div>
       </div>
     </div>
@@ -183,6 +192,10 @@
         <div id="wrong-list-section" class="wrong-list-section hidden">
           <h2>Pokémon que fallaste</h2>
           <div id="wrong-list" class="wrong-list"></div>
+        </div>
+        <div id="global-results-section" class="wrong-list-section">
+          <h2>🌍 Ranking global</h2>
+          <div id="global-results-list"></div>
         </div>
         <div class="results-actions">
           <button id="btn-retry" class="btn btn-primary">Reintentar</button>
