@@ -37,16 +37,23 @@ export default async function handler(req, res) {
 
   try {
     const limit = Math.min(Math.max(parseInt(req.query.limit || '50', 10) || 50, 1), 100);
+    const modeFilter = String(req.query.mode || 'all');
+    const validModes = ['ordered', 'random', 'list'];
     const redis = getRedis();
     // Leer todo lo guardado (max 200) para calcular el mejor por jugador
     const raw = await redis.lrange(KEY, 0, 199);
-    const attempts = (raw || []).map((s) => {
+    let attempts = (raw || []).map((s) => {
       try {
         return typeof s === 'string' ? JSON.parse(s) : s;
       } catch {
         return null;
       }
     }).filter(Boolean);
+
+    // Filtrar por modo si se pide uno concreto
+    if (validModes.includes(modeFilter)) {
+      attempts = attempts.filter((a) => a.mode === modeFilter);
+    }
 
     // Solo el mejor intento por jugador (nombre insensible a mayusculas/espacios)
     const bestByPlayer = new Map();
@@ -61,7 +68,7 @@ export default async function handler(req, res) {
     // Orden: mas aciertos primero, empate -> menor tiempo
     best.sort((a, b) => (b.correct - a.correct) || (timeToSeconds(a.time) - timeToSeconds(b.time)));
 
-    return res.status(200).json({ ok: true, count: best.length, attempts: best.slice(0, limit) });
+    return res.status(200).json({ ok: true, count: best.length, mode: validModes.includes(modeFilter) ? modeFilter : 'all', attempts: best.slice(0, limit) });
   } catch (e) {
     console.error('GET /api/scores', e);
     return res.status(500).json({ ok: false, attempts: [], error: 'Redis no configurado.' });

@@ -51,6 +51,14 @@
     }
     const btnRefresh = $('#btn-refresh-global');
     if (btnRefresh) btnRefresh.addEventListener('click', (e) => { e.preventDefault(); loadGlobalRanking(); });
+    document.querySelectorAll('#rank-tabs .rank-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#rank-tabs .rank-tab').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        rankingTab = btn.dataset.mode;
+        loadGlobalRanking();
+      });
+    });
     loadGlobalRanking();
   }
 
@@ -629,6 +637,10 @@
   }
 
   // ===== HISTORY (local + global KV) =====
+  let rankingTab = 'all';
+
+  const MODE_LABELS = { all: 'Global', ordered: 'Ordenado', random: 'Random', list: 'Lista' };
+
   function getPlayerName() {
     const pi = $('#input-player');
     const v = (pi ? pi.value : localStorage.getItem('pokemon-quiz-player') || '').trim().slice(0, 20);
@@ -653,31 +665,49 @@
       console.warn('No se pudo guardar en ranking global', e);
     }
     loadGlobalRanking();
+    loadResultsRanking();
+  }
+
+  async function fetchRankingHtml(mode) {
+    const url = mode && mode !== 'all' ? `/api/scores?limit=50&mode=${mode}` : '/api/scores?limit=50';
+    const r = await fetch(url);
+    const data = await r.json();
+    if (!data.attempts || data.attempts.length === 0) {
+      return '<div class="history-row">Sin intentos todavia. Se el primero!</div>';
+    }
+    return data.attempts.slice(0, 20).map(a => {
+      const d = a.date ? new Date(a.date).toLocaleDateString('es-ES') : '';
+      const modeBadge = (!mode || mode === 'all') ? ` <span class="global-mode">${escapeHtml(a.mode)} ${d}</span>` : ` <span class="global-mode">${d}</span>`;
+      return `<div class="history-row global-row">` +
+        `<span class="global-name">${escapeHtml(a.name)}${modeBadge}</span>` +
+        `<span class="global-score">${a.correct}/${a.total} (${a.percent}%)</span>` +
+        `<span class="global-time">${escapeHtml(a.time)}</span>` +
+        `</div>`;
+    }).join('');
   }
 
   async function loadGlobalRanking() {
     const list = $('#global-list');
-    const resultsList = $('#global-results-list');
     if (list) list.innerHTML = '<div class="history-row">Cargando ranking...</div>';
     try {
-      const r = await fetch('/api/scores?limit=50');
-      const data = await r.json();
-      const html = !data.attempts || data.attempts.length === 0
-        ? '<div class="history-row">Sin intentos todavia. Se el primero!</div>'
-        : data.attempts.slice(0, 20).map(a => {
-            const d = a.date ? new Date(a.date).toLocaleDateString('es-ES') : '';
-            return `<div class="history-row global-row">` +
-              `<span class="global-name">${escapeHtml(a.name)} <span class="global-mode">${escapeHtml(a.mode)} ${d}</span></span>` +
-              `<span class="global-score">${a.correct}/${a.total} (${a.percent}%)</span>` +
-              `<span class="global-time">${escapeHtml(a.time)}</span>` +
-              `</div>`;
-          }).join('');
+      const html = await fetchRankingHtml(rankingTab);
       if (list) list.innerHTML = html;
+    } catch (e) {
+      if (list) list.innerHTML = '<div class="history-row">Ranking no disponible (KV sin configurar o sin conexion).</div>';
+    }
+  }
+
+  async function loadResultsRanking() {
+    const resultsList = $('#global-results-list');
+    const title = $('#global-results-title');
+    const mode = state.mode || 'all';
+    if (title) title.textContent = `🌍 Ranking — ${MODE_LABELS[mode] || mode}`;
+    if (resultsList) resultsList.innerHTML = '<div class="history-row">Cargando ranking...</div>';
+    try {
+      const html = await fetchRankingHtml(mode);
       if (resultsList) resultsList.innerHTML = html;
     } catch (e) {
-      const msg = '<div class="history-row">Ranking no disponible (KV sin configurar o sin conexion).</div>';
-      if (list) list.innerHTML = msg;
-      if (resultsList) resultsList.innerHTML = msg;
+      if (resultsList) resultsList.innerHTML = '<div class="history-row">Ranking no disponible (KV sin configurar o sin conexion).</div>';
     }
   }
 

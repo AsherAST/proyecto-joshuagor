@@ -48,7 +48,13 @@
           <div id="history-list"></div>
         </div>
         <div id="global-section" class="history-section global-section">
-          <h2>🌍 Intentos de todos los jugadores <button id="btn-refresh-global" class="btn-icon" title="Recargar">↻</button></h2>
+          <h2>🌍 Ranking global <button id="btn-refresh-global" class="btn-icon" title="Recargar">↻</button></h2>
+          <div class="rank-tabs" id="rank-tabs">
+            <button class="rank-tab selected" data-mode="all">Todos</button>
+            <button class="rank-tab" data-mode="ordered">Ordenado</button>
+            <button class="rank-tab" data-mode="random">Random</button>
+            <button class="rank-tab" data-mode="list">Lista</button>
+          </div>
           <div id="global-list"><div class="history-row">Cargando ranking...</div></div>
         </div>
       </div>
@@ -194,7 +200,7 @@
           <div id="wrong-list" class="wrong-list"></div>
         </div>
         <div id="global-results-section" class="wrong-list-section">
-          <h2>🌍 Ranking global</h2>
+          <h2 id="global-results-title">🌍 Ranking global</h2>
           <div id="global-results-list"></div>
         </div>
         <div class="results-actions">

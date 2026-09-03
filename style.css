@@ -134,6 +134,17 @@ h1 {
 .global-score { font-weight: 700; color: var(--yellow); font-family: 'Courier New', monospace; }
 .global-time { color: var(--gray); font-family: 'Courier New', monospace; font-size: 0.8rem; }
 
+/* Ranking tabs por modo */
+.rank-tabs { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
+.rank-tab {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--gray); font-size: 0.8rem; font-weight: 600;
+  padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: all 0.2s;
+}
+.rank-tab:hover { color: var(--white); border-color: rgba(220,10,45,0.5); }
+.rank-tab.selected { background: rgba(220,10,45,0.25); border-color: var(--red); color: var(--white); }
+
 /* History */
 .history-section { max-width: 500px; width: 100%; margin-top: 40px; }
 .history-section h2 { font-size: 1rem; margin-bottom: 12px; color: var(--gray); font-weight: 500; }
